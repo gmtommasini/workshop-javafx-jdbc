@@ -16,8 +16,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.services.DepartmentService;
 
-public class MainViewControler implements Initializable {
+public class MainViewController implements Initializable {
 	
 	@FXML
 	private MenuItem menuItemSeller;
@@ -35,7 +36,7 @@ public class MainViewControler implements Initializable {
 	@FXML
 	public void onMenuItemDepartmentAction() {
 		System.out.println("onMenuItemDepartmentAction");
-		loadView("/gui/DepartmentList.fxml");
+		loadView2("/gui/DepartmentList.fxml");
 	}
 	@FXML
 	public void onMenuItemAboutAction() {
@@ -68,6 +69,32 @@ public class MainViewControler implements Initializable {
 			// Reinserting elements in the Scene (mainScene / mainVBox)
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
+			
+		} catch (IOException e) {
+			Alerts.showAlert("IOException", "Error loading view", e.getMessage(), AlertType.ERROR);
+			e.printStackTrace();
+		}
+	}
+	
+	private synchronized void loadView2(String absoluteName) { //temporary
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+			VBox newVBox = loader.load();
+			Scene mainScene =  Main.getMainScene();
+			VBox mainVBox = (VBox)( (ScrollPane)mainScene.getRoot() ).getContent(); 
+			//getContent returns a reference to whatever is inside <content>, in this case, a VBox
+			
+			// Saving the Menu in a Node
+			Node mainMenu =  mainVBox.getChildren().get(0); //getting the first child (Node) if mainVbox
+			
+			mainVBox.getChildren().clear();
+			// Reinserting elements in the Scene (mainScene / mainVBox)
+			mainVBox.getChildren().add(mainMenu);
+			mainVBox.getChildren().addAll(newVBox.getChildren());
+			
+			DepartmentListController controller = loader.getController();
+			controller.setDepartmentService(new DepartmentService()); //dependency injection
+			controller.updateTableView();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
