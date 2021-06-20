@@ -1,0 +1,7 @@
+xxxDAO is the generic INTERFACE used by the program linked to the object entity.
+DAOfactory is the class responsible for creating instances of the xxxDAO
+
+
+Factory is the only class from the program itself that knows with technology is being used to connect to DB. 
+If the technology changes, we just need to modify this class, apart of the specific classes for that tech (DB and xxxDaoJDBC).
+true?
