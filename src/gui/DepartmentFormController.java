@@ -13,9 +13,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import model.entities.Department;
 
 public class DepartmentFormController implements Initializable{
-
+	// *** Class Attributes ***
+	// Controller elements
+	private Department departmentEntity;
+	
+	// View elements
 	@FXML
 	private TextField txtId;
 	@FXML
@@ -29,6 +34,13 @@ public class DepartmentFormController implements Initializable{
 	@FXML
 	private Button btCancel;
 	
+	//Getters and Setters
+	public void setDepartment(Department entity) {
+		this.departmentEntity = entity;
+	}
+	
+	
+	// *** Methods ***
 	@FXML
 	public void onBtSaveAction(ActionEvent event) {
 		System.out.println("onBtSaveAction");		
@@ -47,5 +59,13 @@ public class DepartmentFormController implements Initializable{
 	private void initializeNodes() {
 		Constraints.setTextFieldInteger(txtId);
 		Constraints.setTextFieldMaxLength(txtName, 30);
+	}
+	
+	public void updateFormData() {
+		if(departmentEntity==null) {		// defensive
+			throw new IllegalStateException("Entity is null");
+		}
+		txtId.setText(String.valueOf(departmentEntity.getId())); //txtid is String
+		txtName.setText(departmentEntity.getName());
 	}
 }

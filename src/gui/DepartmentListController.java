@@ -45,7 +45,8 @@ public class DepartmentListController implements Initializable {
 	// Methods
 	public void onBtNewAction(ActionEvent event) {
 		System.out.println("onBtNewAction");
-		createDialogForm("/gui/DepartmentForm.fxml", gui.util.Utils.currentStage(event));
+		Department dep = new Department(123, "test"); //testing
+		createDialogForm(dep, "/gui/DepartmentForm.fxml", gui.util.Utils.currentStage(event));
 	}
 	
 	@Override
@@ -70,8 +71,7 @@ public class DepartmentListController implements Initializable {
 	}
 	
 	public void updateTableView() {
-		// being safe
-		if(service == null) {
+		if(service == null) { 		// being safe
 			throw new IllegalStateException("Service is null");
 		}
 		List<Department> list = service.findAll();
@@ -79,10 +79,15 @@ public class DepartmentListController implements Initializable {
 		tableViewDepartments.setItems(obsList);
 	}
 	
-	private void createDialogForm(String absoluteName, Stage parentStage) {
+	private void createDialogForm(Department departmenteEntity,  String absoluteName, Stage parentStage) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
+			
+			DepartmentFormController controller = loader.getController(); 
+			controller.setDepartment(departmenteEntity);
+			controller.updateFormData();
+			
 			//modal is a new Stage over the main Stage
 			Stage dialogStage = new Stage();
 			dialogStage.setTitle("Enter Department Data");
@@ -94,7 +99,6 @@ public class DepartmentListController implements Initializable {
 			dialogStage.showAndWait();
 			
 		}catch (IOException e) {
-			// TODO: handle exception
 			Alerts.showAlert("IO Exception", "Error loading View", e.getMessage(), AlertType.ERROR);
 		}
 	}
