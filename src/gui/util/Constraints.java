@@ -17,6 +17,7 @@ public class Constraints {
 		txt.textProperty().addListener((obs, oldValue, newValue) -> {
 			if (newValue != null && newValue.length() > max) {
 				txt.setText(oldValue);
+				System.out.println("Max lenght reached: " + max);
 			}
 		});
 	}
