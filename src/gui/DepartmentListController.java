@@ -26,59 +26,60 @@ import model.entities.Department;
 import model.services.DepartmentService;
 
 public class DepartmentListController implements Initializable {
-	
+
 	// View elements
 	@FXML
 	private TableView<Department> tableViewDepartments;
 	@FXML
-	private TableColumn<Department, Integer> tableColumnId; //TableColumn gets the 
+	private TableColumn<Department, Integer> tableColumnId; // TableColumn gets the
 	@FXML
 	private TableColumn<Department, String> tableColumnName;
 	@FXML
 	private Button btNew;
-	
+
 	// Controller elements
 	private DepartmentService service;
 	private ObservableList<Department> obsList;
-	
-	
+
+	// Getters and Setters	
+	public void setDepartmentService(DepartmentService service) {
+		this.service = service;
+	}
+
 	// Methods
 	public void onBtNewAction(ActionEvent event) {
 		System.out.println("onBtNewAction");
-		Department dep = new Department(123, "test"); //testing
+		Department dep = new Department(); 
 		createDialogForm(dep, "/gui/DepartmentForm.fxml", gui.util.Utils.currentStage(event));
 	}
-	
+
 	@Override
 	public void initialize(URL uri, ResourceBundle rb) {
-		initializeNodes();		
-	}
-	
-	public void setDepartmentService(DepartmentService service ) {
-		this.service = service;
+		initializeNodes();
 	}
 
 	private void initializeNodes() {
 		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
 		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));
-		
-		//fitting to window
-		Stage stage = (Stage )Main.getMainScene().getWindow();
+
+		// fitting to window
+		Stage stage = (Stage) Main.getMainScene().getWindow();
 		tableViewDepartments.prefHeightProperty().bind(stage.heightProperty());
 		tableViewDepartments.prefWidthProperty().bind(stage.widthProperty());
-		//trying to fit the column...
-		//tableColumnName.prefWidthProperty().bind(stage.widthProperty()); //does not work very well this way
+		// trying to fit the column...
+		// tableColumnName.prefWidthProperty().bind(stage.widthProperty()); //does not
+		// work very well this way
 	}
-	
+
 	public void updateTableView() {
-		if(service == null) { 		// being safe
+		if (service == null) { // being safe
 			throw new IllegalStateException("Service is null");
 		}
 		List<Department> list = service.findAll();
-		obsList =  FXCollections.observableArrayList(list);
+		obsList = FXCollections.observableArrayList(list);
 		tableViewDepartments.setItems(obsList);
 	}
-	
+
 	private void createDialogForm(Department departmenteEntity,  String absoluteName, Stage parentStage) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
@@ -86,6 +87,7 @@ public class DepartmentListController implements Initializable {
 			
 			DepartmentFormController controller = loader.getController(); 
 			controller.setDepartment(departmenteEntity);
+			controller.setDepartmentService(service);
 			controller.updateFormData();
 			
 			//modal is a new Stage over the main Stage
