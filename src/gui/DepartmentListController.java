@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import application.Main;
+import gui.listener.DataChangeListener;
 import gui.util.Alerts;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,7 +26,7 @@ import javafx.stage.Stage;
 import model.entities.Department;
 import model.services.DepartmentService;
 
-public class DepartmentListController implements Initializable {
+public class DepartmentListController implements Initializable, DataChangeListener {
 
 	// View elements
 	@FXML
@@ -88,6 +89,7 @@ public class DepartmentListController implements Initializable {
 			DepartmentFormController controller = loader.getController(); 
 			controller.setDepartment(departmenteEntity);
 			controller.setDepartmentService(service);
+			controller.subscribedDataChangeListener(this); //This controller is subscribed to listen to data changes
 			controller.updateFormData();
 			
 			//modal is a new Stage over the main Stage
@@ -103,6 +105,13 @@ public class DepartmentListController implements Initializable {
 		}catch (IOException e) {
 			Alerts.showAlert("IO Exception", "Error loading View", e.getMessage(), AlertType.ERROR);
 		}
+	}
+
+	@Override
+	public void onDataChange() {
+		/* this method is currently being called by 
+		 * notifyDataChangeListeners from DepartmentFormController*/
+		updateTableView();		
 	}
 
 }

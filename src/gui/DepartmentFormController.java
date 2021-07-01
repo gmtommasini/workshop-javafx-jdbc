@@ -1,20 +1,21 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
-
-
 import db.DbException;
+import gui.listener.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import model.entities.Department;
 import model.services.DepartmentService;
 
@@ -23,6 +24,7 @@ public class DepartmentFormController implements Initializable {
 	// Controller elements
 	private Department departmentEntity;
 	private DepartmentService service;
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
 
 	// View elements
 	@FXML
@@ -48,6 +50,7 @@ public class DepartmentFormController implements Initializable {
 	}
 
 	// *** Methods ***
+	//View Methods
 	@FXML
 	public void onBtSaveAction(ActionEvent event) {
 		System.out.println("onBtSaveAction");
@@ -60,6 +63,7 @@ public class DepartmentFormController implements Initializable {
 		try {
 			departmentEntity = getFormdata();
 			service.saveOrUpdate(departmentEntity);
+			notifyDataChangeListeners();
 			gui.util.Utils.currentStage(event).close();
 		} catch (DbException e) {
 			Alerts.showAlert("Error saving object", null, e.getMessage(), AlertType.ERROR);
@@ -84,7 +88,10 @@ public class DepartmentFormController implements Initializable {
 	}
 
 	// *** Controller Methods ***
-
+	public void subscribedDataChangeListener(DataChangeListener listener) {
+		dataChangeListeners.add(listener);
+	}
+	
 	public void updateFormData() {
 		if (departmentEntity == null) { // defensive
 			throw new IllegalStateException("Entity is null");
@@ -98,6 +105,14 @@ public class DepartmentFormController implements Initializable {
 		dep.setId(gui.util.Utils.tryParseToInt(txtId.getText()));
 		dep.setName(txtName.getText());
 		return dep;
+	}
+	
+	private void notifyDataChangeListeners() {
+		/* onBtSaveAction calls this method */
+//		for (DataChangeListener listener : dataChangeListeners) {
+//			listener.onDataChange();
+//		}		
+		dataChangeListeners.forEach(DataChangeListener::onDataChange);
 	}
 
 }
