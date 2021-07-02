@@ -12,7 +12,7 @@ public class ValidationException extends RuntimeException {
 		super(msg);
 	}
 	
-	// GEtters and Setters
+	// Getters and Setters
 	public Map<String, String> getErrors() {
 		return errors;
 	}

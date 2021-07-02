@@ -3,9 +3,11 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import application.Main;
+import db.DbIntegrityException;
 import gui.listener.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
@@ -19,6 +21,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -40,6 +43,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
 	private TableColumn<Department, String> tableColumnName;
 	@FXML
 	private TableColumn<Department, Department> tableColumnEdit;
+	@FXML
+	private TableColumn<Department, Department> tableColumnRemove;
 	@FXML
 	private Button btNew;
 
@@ -85,6 +90,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		obsList = FXCollections.observableArrayList(list);
 		tableViewDepartments.setItems(obsList);
 		initEditButtons();
+		initRemoveButtons();
 	}
 
 	private void createDialogForm(Department departmenteEntity, String absoluteName, Stage parentStage) {
@@ -103,7 +109,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
 			dialogStage.setTitle("Enter Department Data");
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.initOwner(parentStage);
-			// dialogStage.setAlwaysOnTop(true);
+			// dialogStage.setAlwaysOnTop(true); // make is in front of anything in the
+			// screen
 			dialogStage.setResizable(false);
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.showAndWait();
@@ -123,7 +130,9 @@ public class DepartmentListController implements Initializable, DataChangeListen
 	}
 
 	private void initEditButtons() {
-		// adds the Edit button to each line of the table 
+		// adds the Edit button to each line of the table
+		// code from
+		// https://stackoverflow.com/questions/32282230/fxml-javafx-8-tableview-make-a-delete-button-in-each-row-and-delete-the-row-a
 		tableColumnEdit.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
 		tableColumnEdit.setCellFactory(param -> new TableCell<Department, Department>() {
 			private final Button button = new Button("edit");
@@ -140,5 +149,39 @@ public class DepartmentListController implements Initializable, DataChangeListen
 						event -> createDialogForm(obj, "/gui/DepartmentForm.fxml", Utils.currentStage(event)));
 			}
 		});
+	}
+
+	private void initRemoveButtons() {
+		tableColumnRemove.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+		tableColumnRemove.setCellFactory(param -> new TableCell<Department, Department>() {
+			private final Button button = new Button("remove");
+
+			@Override
+			protected void updateItem(Department obj, boolean empty) {
+				super.updateItem(obj, empty);
+				if (obj == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(button);
+				button.setOnAction(event -> removeEntity(obj));
+			}
+		});
+	}
+
+	private void removeEntity(Department dep) {
+		Optional<ButtonType> confirm = Alerts.showConfirmation("Confirmation", "Are you sure you want to delete?");
+		if (confirm.get() == ButtonType.OK) {
+			if (service == null) {
+				throw new IllegalStateException("Service is null");
+			}
+			try {
+				service.remove(dep);
+				updateTableView();
+			} catch (DbIntegrityException e) { //We can always check the Exception type looking into the throwing method
+				Alerts.showAlert("Error removing department", null, e.getMessage(), AlertType.ERROR);
+			}
+		}
+
 	}
 }

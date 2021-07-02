@@ -23,10 +23,14 @@ public class DepartmentService {
 
 	public void saveOrUpdate(Department dep) {
 		if (dep.getId() == null) {
-			//if id==null -> new department to be created
+			// if id==null -> new department to be created
 			dao.insert(dep);
 		} else {
 			dao.update(dep);
 		}
+	}
+
+	public void remove(Department dep) {
+		dao.deleteById(dep.getId());
 	}
 }
