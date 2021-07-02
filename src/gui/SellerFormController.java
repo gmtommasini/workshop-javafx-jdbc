@@ -1,6 +1,8 @@
 package gui;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +12,13 @@ import db.DbException;
 import gui.listener.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
+import gui.util.Utils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Seller;
@@ -33,9 +37,21 @@ public class SellerFormController implements Initializable {
 	private TextField txtId;
 	@FXML
 	private TextField txtName;
+	@FXML
+	private TextField txtEmail;
+	@FXML
+	private DatePicker dpBirthDate;
+	@FXML
+	private TextField txtBaseSalary;
 
 	@FXML
 	private Label labelErrorName;
+	@FXML
+	private Label labelErrorEmail;
+	@FXML
+	private Label labelErrorBirthDate;
+	@FXML
+	private Label labelErrorBaseSalary;
 
 	@FXML
 	private Button btSave;
@@ -88,7 +104,10 @@ public class SellerFormController implements Initializable {
 
 	private void initializeNodes() {
 		Constraints.setTextFieldInteger(txtId);
-		Constraints.setTextFieldMaxLength(txtName, 30);
+		Constraints.setTextFieldMaxLength(txtName, 50);
+		Constraints.setTextFieldMaxLength(txtEmail, 60);
+		Constraints.setTextFieldDouble(txtBaseSalary);
+		Utils.formatDatePicker(dpBirthDate, "yyyy/MM/dd");
 	}
 
 	// *** Controller Methods ***
@@ -102,6 +121,11 @@ public class SellerFormController implements Initializable {
 		}
 		txtId.setText(String.valueOf(sellerEntity.getId())); // txtid is String
 		txtName.setText(sellerEntity.getName());
+		txtEmail.setText(sellerEntity.getEmail());
+		txtBaseSalary.setText(String.format("%.2f", sellerEntity.getBaseSalary()));
+		if (sellerEntity.getBirthDate() != null) {
+			dpBirthDate.setValue( LocalDate.ofInstant(sellerEntity.getBirthDate().toInstant(), ZoneId.systemDefault() )); //ZoneId.systemDefault() gets the host timezone			
+		}
 	}
 
 	private Seller getFormData() {
